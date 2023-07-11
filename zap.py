@@ -96,6 +96,8 @@ cmd_source = r'''
        ssh gox
         cd src/letz
         podman run -v .:/app:exec -p 8000:8000 --rm -it --name cos1 cos npm run dev -- --port 8000 --host 0.0.0.0
+       ssh gox
+        ll nonexists
        cd ~/src/letz
         code .
     # dev_fe
@@ -151,12 +153,22 @@ cmd_source = r'''
         echo "Several!"
         sleep 1
         echo "Completo!"
-       echo "yup"
+       echo "noncommand"
         sleep 2
-        ll nonexists
+        ll non-command
          # 'll' is not found, exit code 127
         echo "Very nearly!"
+       echo "non-existence"
+        ls v
+       echo "an-exit-four"
         exit 4
+        echo "Not nearly!"
+       echo "a-good-time"
+        echo "here"
+        sleep 0.2
+        echo "there"
+        sleep 0.13
+        echo "around"
 '''
 
 
@@ -308,7 +320,11 @@ def run_job(job,actual_cmd=None):
     #  you can fixup fixups too so we pass command
     give_job_fixup(job,command)
 
-    process = job["process"] = subprocess.Popen([zap_run_path,command], shell=False,
+    # json strings are shell-compatible
+    #  in perl this will be $ARGV[0], not needing decode
+    zap_command = zap_run_path+" "+json.dumps(command)
+
+    process = job["process"] = subprocess.Popen(zap_command, shell=True,
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
