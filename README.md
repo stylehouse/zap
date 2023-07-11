@@ -1,6 +1,8 @@
 # zap
 supervisor running|monitoring all these commands
 
+![zap ui demo](zap-demo.mp4)
+
 ## description
 
 runs the commands specified in zap.py. they a split into systems, so individual `./zap.py $system` can be run, or all will be.
