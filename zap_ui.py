@@ -43,8 +43,6 @@ def main(stdscr,i_job,job_i,systems):
             # look into selected command
             job = i_job[selected_row]
             stdscr = less_job(stdscr, job)
-            # < see ansiicolours
-            #view_job(stdscr,job)
 
         # Redraw the interface
         view_systems(stdscr, systems, selected_row)
@@ -100,6 +98,7 @@ def draw_job_label(stdscr,job,i):
 
     col_status = cols - 15
     col_in = cols - 10
+    col_weather = cols - 5
     # status
     if "check1s" in job:
         check = job["check1s"]
@@ -117,6 +116,8 @@ def draw_job_label(stdscr,job,i):
     if not 'output' in job:
         # won't have stdin before starting command
         stdscr.addstr(i, col_in, "!yet?")
+    if "unseen_err" in job:
+        stdscr.addstr(i, col_weather, "🔥")
 
 def out_to_line(out):
     ind = '   '
@@ -182,6 +183,9 @@ def less_job(stdscr,job):
     #  possible error message sitting in the terminal after less before curses
     #  Ctrl-Z somewhere might show it too
     #time.sleep(0.23)
+
+    # consider the matter settled
+    job.pop("unseen_err", None)
 
     # Initialize curses again.
     stdscr = curses.initscr()

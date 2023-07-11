@@ -267,6 +267,7 @@ def run_fixup(job,line,cmd):
     # < report errors (exit code or any stderr) into job.fixup, so the ui say failure
     # retry job
     iout(job,'fix'," fixup applied! retrying")
+    job.pop("unseen_err", None)
     run_job(job)
 
     
@@ -276,6 +277,8 @@ def run_fixup(job,line,cmd):
 def iout(job,ch,s):
     out = {"std":ch,"s":s,"time":time.time()}
     job["output"].append(out)
+    if ch == 'err':
+        job["unseen_err"] = 1
     return out
 
 # Get the directory path of the current script
