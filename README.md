@@ -1,7 +1,7 @@
 # zap
 supervisor running|monitoring all these commands
 
-https://github.com/stylehouse/zap/assets/20439374/b2da2885-6d6a-4778-8d78-52648f5a8ceb
+https://github.com/stylehouse/zap/assets/20439374/0800f95b-b321-46e8-a03d-103786e080b6
 
 ## description
 
