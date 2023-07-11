@@ -22,11 +22,11 @@ should be secure, only uses core python.
 
 ## long description
 
-A terminal program to automate running and monitoring all these commands.
+A terminal program to automate running and monitoring all these commands, having fixups for common error-response side-tracking.
 
-It to present an interface (curses) listing things running normally.
+It present an interface (curses) listing things running normally or catching fire.
 
-Run a bunch of commands at one, tailing the outputs.
+Run a bunch of commands at once, tailing the outputs.
 
 Sysadmin glue code for clusters of vms with various sshfs etc commands involved in their running.
 
@@ -45,6 +45,12 @@ the podman-run commands seem to exit(0) while they're still outputting stuff. [w
 see `zap.py`
 
 # TODO
+
+## we dont exit podman-run properly
+Handle Ctrl+C for zap exit, terminate() jobs first.
+
+## clear exit code on restart
+The fixups can't be gauged for failure, eg `podman rm -f cos1` often errs "container has already been removed", meaning good.
 
 ## restart failed jobs|systems
 without restarting `zap.py`.
@@ -69,7 +75,9 @@ we currently dont know which cmd of a job failed, eg `ssh n 'any && of && these 
 jobs could `echo PID:$$` first so we can find sshd/*:cmds in `ps faux`, for all jobs on n: etc, and then `echo some-marker` to put pagination markets in the output. `out%%ch=cmd,s:cmd`
 
 ## novelty analysis
-if anything makes unusual noise (learn what things usually do) it should bring that information into view, ie showing the user novel events.
+learn what normal output looks like for each command.
+
+if anything makes unusual noise it should bring that information into view, ie showing the user novel events.
 
 ## command marketplace
 how do everyone's technical struggles fruit.
