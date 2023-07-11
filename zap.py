@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import time
 import concurrent.futures
 import threading
@@ -277,6 +278,11 @@ def iout(job,ch,s):
     job["output"].append(out)
     return out
 
+# Get the directory path of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the full path to zap_run.pl
+zap_run_path = os.path.join(script_dir, 'zap_run.pl')
+
 def run_job(job,actual_cmd=None):
     i = job["i"]
     command = actual_cmd or job["command"]
@@ -299,7 +305,7 @@ def run_job(job,actual_cmd=None):
     #  you can fixup fixups too so we pass command
     give_job_fixup(job,command)
 
-    process = job["process"] = subprocess.Popen(['py/zap_run.pl',command], shell=False,
+    process = job["process"] = subprocess.Popen([zap_run_path,command], shell=False,
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
