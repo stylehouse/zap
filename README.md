@@ -10,7 +10,7 @@ runs the commands specified in zap.py. they a split into systems, so individual 
 I used it to make a dev environment for [letz](https://github.com/stylehouse/letz), instead of a village of terminals to constantly rebuild.
 
 - can fixup common errors with the commands
-- has curses interface which becomes `less -R` (supports colours) when looking at commands (not a fully-fledged terminal)
+- has curses interface which becomes `less -R` (supports ansii colours and hyperlinks) when looking at commands (not a fully-fledged terminal)
 
 ## installation
 
@@ -36,7 +36,7 @@ Here in `zap.py` are several sequences of commands,
     the first is usually an ssh session the rest happen in
     then we wait observing the last command forever
 
-Please look to the wiki for more examples, feel free to add yours.
+Please look to the wiki to pick up or drop off more examples. Think of it as social media for software.
 
 ## caveats
 
@@ -72,7 +72,7 @@ jobs could `echo PID:$$` first so we can find sshd/*:cmds in `ps faux`, for all 
 if anything makes unusual noise (learn what things usually do) it should bring that information into view, ie showing the user novel events.
 
 ## command marketplace
-how do everyone's technical struggles fruit
+how do everyone's technical struggles fruit.
 
 ## fixup marketplace
 the general-knowledge version of the above.

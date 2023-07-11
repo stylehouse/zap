@@ -86,6 +86,9 @@ cmd_source = r'''
     # letz_dev
        cd ~/src
         lsyncd -nodaemon -delay 0 -rsyncssh letz gox src/letz
+         # fast code deployment over ssh
+         #  inotify on s: -> replication -> inotify on gox (-> vite etc)
+         # unlike sshfs ~~ ftp needing ongoing ls
        ssh -A gox
         sshfs s:/media/s/Elvis/Photo v
          # s is 192.168.122.1, virbr0 on sa
@@ -294,7 +297,12 @@ def iout(job,ch,s):
     return out
 
 # Get the directory path of the current script
-script_dir = os.path.dirname(os.path.abspath(__file__))
+script_path = os.path.abspath(__file__)
+# you might link to zap.py from nearby
+# < possibly where cmd_source (systems config) might live
+if os.path.islink(script_path):
+    script_path = os.path.realpath(script_path)
+script_dir = os.path.dirname(script_path)
 # Construct the full path to zap_run.pl
 zap_run_path = os.path.join(script_dir, 'zap_run.pl')
 
