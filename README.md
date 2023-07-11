@@ -1,7 +1,7 @@
 # zap
 supervisor running|monitoring all these commands
 
-![zap ui demo](zap-demo.mp4)
+https://github.com/stylehouse/zap/assets/20439374/b2da2885-6d6a-4778-8d78-52648f5a8ceb
 
 ## description
 
