@@ -209,7 +209,6 @@ if only:
 else:
     systems = [system for system in systems if not system['t'] == 'nico']
     systems = [system for system in systems if not system['t'] == 'test']
-    systems = [system for system in systems if not system['t'] == 'dev_fe']
 
 job_i = 0
 i_job = {}
