@@ -7,12 +7,12 @@ import subprocess
 import sys
 import re
 import json
-import pprint
 from pathlib import Path
 
 import zap_parser
 import zap_ui
 
+import pprint
 def dd(data,depth=7):
     pp = pprint.PrettyPrinter(depth=depth)
     pp.pprint(data)
