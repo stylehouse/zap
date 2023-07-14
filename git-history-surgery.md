@@ -1,3 +1,5 @@
+# how to extract a subdirectory of git history
+```
     cd; rm -rf letz/; git clone src/letz; cd letz
     export FILTER_BRANCH_SQUELCH_WARNING=1
 
@@ -21,4 +23,4 @@
 
     git checkout main
     git clone . zap
-
+```
