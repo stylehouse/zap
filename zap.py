@@ -109,6 +109,16 @@ cmd_source = r'''
         http://192.168.122.92:5000/dir/ \
         http://192.168.122.92:8000/
        
+    # init
+       cd ~/src
+        lsyncd -nodaemon -delay 0 -rsyncssh letz gox src/letz
+         # < avoid sleep: when is this ready?
+       ssh gox
+        sleep 1
+        podman build -t cos .
+        podman build -t py py
+
+        
     # nico
        ssh n
         sudo mount -t 9p -o trans=virtio allmusic allmusic/
