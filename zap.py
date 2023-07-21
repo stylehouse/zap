@@ -110,8 +110,7 @@ cmd_source = r'''
         http://192.168.122.92:8000/
        
     # init
-       cd ~/src
-        lsyncd -nodaemon -delay 0 -rsyncssh letz gox src/letz
+       lsyncd -nodaemon py/letz.lsyncdconf
          # < avoid sleep: when is this ready?
        ssh gox
         sleep 1
@@ -140,9 +139,9 @@ cmd_source = r'''
        cd ~/stylehouse
         ./serve.pl
        ssh gox
-         # < redoif /no route/
+         # < fixup /no route/
          #       virsh start gox
-         #       redoif /bridge helper: stderr=failed to create tun device: Operation not permitted/
+         #       fixup /bridge helper: stderr=failed to create tun device: Operation not permitted/
          #           # freshly installed something needs:
          #           sudo chmod u+s /usr/lib/qemu/qemu-bridge-helper
         echo rop
@@ -171,6 +170,7 @@ cmd_source = r'''
         ll non-command
          # 'll' is not found, exit code 127
         echo "Very nearly!"
+       lsyncd -nodaemon py/letz.lsyncdconf
        echo "non-existence"
         ls v
        echo "an-exit-four"
@@ -263,16 +263,25 @@ for system in systems:
 def give_job_fixup(job,command):
     if 'podman run' in command:
         job["listen_out"].append(fixup_for_podmanrun_job)
+    if 'lsyncd' in command:
+        job["listen_out"].append(fixup_for_lsyncd_job)
+
 def fixup_for_podmanrun_job(job,out):
     line = out['s']
     if out["std"] == "err":
         if m := re.search(r'the container name "(\S+)" is already in use', line):
-            run_fixup(job,line,'podman rm -f {}'.format(m.group(1)))
+            run_fixup(job,'podman rm -f {}'.format(m.group(1)))
+            # < subsequent steps?
+def fixup_for_lsyncd_job(job,out):
+    line = out['s']
+    if out["std"] == "out":
+        if '--- INT signal, fading ---' in line:
+            run_fixup(job,'echo nothing')
             # < subsequent steps?
 
 
 
-def run_fixup(job,line,cmd):
+def run_fixup(job,cmd):
     # stop what we were doing
     job['process'].terminate()
     # make a heading and say line in job.output, with out.std=head
