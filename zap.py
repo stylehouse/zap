@@ -84,8 +84,10 @@ cmd_source = r'''
        cd ~/stylehouse
         ./serve.pl
     # letz_dev
-       cd ~/src
-        lsyncd -nodaemon -delay 0 -rsyncssh letz gox src/letz
+       lsyncd py/letz.lsyncdconf
+        echo yep
+        %restart
+         #    this seems to get a SIGINT from the UI doing less
          # fast code deployment over ssh
          #  inotify on s: -> replication -> inotify on gox (-> vite etc)
          # unlike sshfs ~~ ftp needing ongoing ls
@@ -104,16 +106,17 @@ cmd_source = r'''
        cd ~/src/letz
         code .
     # dev_fe
-       chromium \
+       echo chromium \
         http://editong.localhost:1812/ \
         http://192.168.122.92:5000/dir/ \
         http://192.168.122.92:8000/
        
     # init
-       lsyncd -nodaemon py/letz.lsyncdconf
+       lsyncd py/letz.lsyncdconf
          # < avoid sleep: when is this ready?
        ssh gox
         sleep 1
+        cd src/letz
         podman build -t cos .
         podman build -t py py
 
@@ -170,7 +173,11 @@ cmd_source = r'''
         ll non-command
          # 'll' is not found, exit code 127
         echo "Very nearly!"
-       lsyncd -nodaemon py/letz.lsyncdconf
+        %restart
+       echo hi
+        lsyncd py/letz.lsyncdconf
+        sleep 1
+        %restart
        echo "non-existence"
         ls v
        echo "an-exit-four"
@@ -219,6 +226,7 @@ if only:
 else:
     systems = [system for system in systems if not system['t'] == 'nico']
     systems = [system for system in systems if not system['t'] == 'test']
+    systems = [system for system in systems if not system['t'] == 'init']
 
 job_i = 0
 i_job = {}
@@ -263,8 +271,9 @@ for system in systems:
 def give_job_fixup(job,command):
     if 'podman run' in command:
         job["listen_out"].append(fixup_for_podmanrun_job)
-    if 'lsyncd' in command:
-        job["listen_out"].append(fixup_for_lsyncd_job)
+    # use the %restart job advice instead, less chatter
+    #if 'lsyncd' in command:
+    #    job["listen_out"].append(fixup_for_lsyncd_job)
 
 def fixup_for_podmanrun_job(job,out):
     line = out['s']
@@ -324,12 +333,15 @@ script_dir = os.path.dirname(script_path)
 # Construct the full path to zap_run.pl
 zap_run_path = os.path.join(script_dir, 'zap_run.pl')
 
-def run_job(job,actual_cmd=None):
+def run_job(job,actual_cmd=None,sleepytime=None):
     i = job["i"]
     command = actual_cmd or job["command"]
     def diag(s):
         #print(s)
         1
+    if sleepytime:
+        # job.restart should not burn cpu
+        time.sleep(2)
     if actual_cmd:
         diag(f"[{i}] other: "+ command)
 
@@ -406,6 +418,14 @@ def run_job(job,actual_cmd=None):
             job["exit_code"] = exit_code
             diag(f"[{i}] finito")
             job["check1s"] = lambda: 1
+            # when the job produces an error code?
+            if 'restart' in job:
+                iout(job,'fix'," ↺ job restart")
+                # we are the UI thread currently
+                # < run another loop for checks or a loop per job? sched didn't work for me
+                # Create a new thread and call run_job(job) within that thread
+                restart_thread = threading.Thread(target=run_job, args=(job,None,'sleepy'))
+                restart_thread.start()
     job["check1s"] = check1s
 
 

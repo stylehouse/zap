@@ -42,9 +42,20 @@ Please look to the wiki to pick up or drop off more examples. Think of it as soc
 
 the podman-run commands seem to exit(0) while they're still outputting stuff. [who knows why?](https://stackoverflow.com/questions/881388/double-fork-when-creating-a-daemon/5386753#5386753)
 
-see `zap.py`
+You cannot restart commands via the UI, the jobs must be programmed to **%restart** or have a fixup for a particular behaviour to restart after.
+
+See **TODO / clear exit code on restart**, the UI may have stale exit codes.
+
+The UI's shelling out to **less**:
+ - (which we must kill our way out of with Ctrl+C) leaks that SIGINT to eg lsyncd. Perhaps it should be via **zap_run.pl**?
+ - seems to prevent the job thread from restarting any process.
+
+For more caveats, see `zap.py`
 
 # TODO
+
+## rewrite in golang
+lots of nice Console-UI things are over there
 
 ## we dont exit podman-run properly
 Handle Ctrl+C for zap exit, terminate() jobs first.
@@ -53,11 +64,14 @@ Handle Ctrl+C for zap exit, terminate() jobs first.
 The fixups can't be gauged for failure, eg `podman rm -f cos1` often errs "container has already been removed", meaning good.
 
 ## restart failed jobs|systems
-without restarting `zap.py`.
+Besides making the job one that **%restart**s, operator should be able to restart jobs at will, without restarting `zap.py`.
+
 restart 2x daily: memleak mode.
 
 ## dependencies
 we could need A finished before B starts. perhaps the cmd_source sets or gets markers.
+
+do **%early** before others? mostly for lsyncd being done, so it could have a fixup to make itself 
 
 ## improve view_systems
 make the system/job/cmd hierarchy clearer

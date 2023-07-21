@@ -2,7 +2,7 @@
 import re
 # python obviously doesn't like chewing on text
 def parse_cmd_source(L):
-    leading_pattern = re.compile(r'^(\s+)(# ?)?(.+?)$')
+    leading_pattern = re.compile(r'^(\s+)(# ?)?(%%?)?(\s*?\S+?.*?)$')
     escaped_newline = re.compile(r'^(.*)\\$')
 
     # to be system/job/command+
@@ -32,7 +32,7 @@ def parse_cmd_source(L):
     for line in L.split("\n"):
         match = leading_pattern.match(line)
         if match:
-            indent, iscomment, stuff = match.groups()
+            indent, iscomment, isadvice, stuff = match.groups()
             indent = len(indent)
             if iscomment:
                 if not indof['system'] or indof['system'] == indent:
@@ -43,6 +43,13 @@ def parse_cmd_source(L):
                     systems.append(system)
 
                 # else a comment in the source
+                continue
+            
+            if isadvice:
+                # < adopt peel() for k:v,k:v
+                for idea in stuff.split(","):
+                    # job behaviour idea may be: restart
+                    job[idea] = 1
                 continue
             
             if not indof['job'] or indof['job'] == indent:
