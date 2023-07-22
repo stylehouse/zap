@@ -69,15 +69,15 @@ restart 2x daily: memleak mode.
 ## dependencies
 we could need A finished before B starts. perhaps the cmd_source sets or gets markers.
 
-do **%early** before others? mostly for lsyncd being done, so it could have a fixup to make itself 
+do **%early** before others? could have a fixup notice when it says Ready, etc.
 
 ## improve view_systems
-make the system/job/cmd hierarchy clearer
+make the system/job/cmd hierarchy clearer, toggle them on|off...
 
 more indicators, eg that unseen output|errors exist per job
 
 ## improve view_job
-while in the less of `less_job()`, indication of unseen errors occuring in other jobs should be visible. make out.ch='zap' to clearly layer those bits of the output.
+while in the less of `less_job()`, indication of action in other jobs should be visible. lose less.
 
 ## ssh in to watch progress
 getting the pid of the remote shell, then with `ps faux`, figure which cmd in the job we are doing, take cpu|mem stats, etc.
@@ -93,6 +93,8 @@ if anything makes unusual noise it should bring that information into view, ie s
 
 ## command marketplace
 how do everyone's technical struggles fruit.
+
+Please look to the wiki to pick up or drop off more examples. Think of it as social media for software.
 
 ## fixup marketplace
 the general-knowledge version of the above.
