@@ -421,11 +421,9 @@ def run_job(job,actual_cmd=None,sleepytime=None):
             # when the job produces an error code?
             if 'restart' in job:
                 iout(job,'fix'," ↺ job restart")
-                # we are the UI thread currently
-                # < run another loop for checks or a loop per job? sched didn't work for me
+                # we are the check_jobs thread currently
                 # Create a new thread and call run_job(job) within that thread
-                restart_thread = threading.Thread(target=run_job, args=(job,None,'sleepy'))
-                restart_thread.start()
+                threading.Thread(target=run_job, args=(job,None,'sleepy')).start()
     job["check1s"] = check1s
 
 
@@ -451,12 +449,25 @@ def all_systems_go():
 # run commands without blocking the UI
 def all_systems_go_thread():
     all_systems_go()
-all_systems_go_thread = threading.Thread(target=all_systems_go_thread)
-all_systems_go_thread.start()
+threading.Thread(target=all_systems_go).start()
+
+# watch for exit codes etc
+def check_jobs():
+    while True:
+        for system in systems:
+            jobs = system['jobs']
+            for job in jobs:
+                cmds = job['cmds']
+                job['t'] = zap_parser.create_job_title(job,cmds)
+                if "check1s" in job:
+                    check = job["check1s"]
+                    check()
+        time.sleep(0.4)
+threading.Thread(target=check_jobs).start()
 
 # Run the UI
 zap_ui.begin(i_job,job_i,systems)
 
 
 
-dd(systems)
+#dd(systems)

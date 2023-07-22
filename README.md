@@ -10,15 +10,13 @@ runs the commands specified in zap.py. they a split into systems, so individual 
 I used it to make a dev environment for [letz](https://github.com/stylehouse/letz), instead of a village of terminals to constantly rebuild.
 
 - can fixup common errors with the commands
-- has curses interface which becomes `less -R` (supports ansii colours and hyperlinks) when looking at commands (not a fully-fledged terminal)
+- has curses interface which becomes `less -R` (supports ansii colours and hyperlinks) when looking at commands (not a proper terminal)
 
 ## installation
 
 * copy somewhere
-* adjust the commands specified in `zap.py`
+* adjust the commands specified in `zap.py` for yourself
   * various podman-build are implied
-
-should be secure, only uses core python.
 
 ## long description
 
@@ -32,9 +30,9 @@ Sysadmin glue code for clusters of vms with various sshfs etc commands involved 
 
 ## examples
 
-Here in `zap.py` are several sequences of commands,
-    the first is usually an ssh session the rest happen in
-    then we wait observing the last command forever
+In `zap.py` is configured several sequences of commands,
+    the first is usually an ssh session the rest happen in,
+    and we wait observing the command forever.
 
 Please look to the wiki to pick up or drop off more examples. Think of it as social media for software.
 

@@ -101,8 +101,6 @@ def draw_job_label(stdscr,job,i):
     col_weather = cols - 5
     # status
     if "check1s" in job:
-        check = job["check1s"]
-        check()
         if job["exit_code"] is not None:
             if not job["exit_code"]:
                 # 0 - good
