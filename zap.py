@@ -447,8 +447,6 @@ def all_systems_go():
 
 
 # run commands without blocking the UI
-def all_systems_go_thread():
-    all_systems_go()
 threading.Thread(target=all_systems_go).start()
 
 # watch for exit codes etc
