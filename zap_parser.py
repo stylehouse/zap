@@ -108,7 +108,7 @@ def create_job_title(job,cmds):
             else:
                 titles.append(match.group(1)+vague+match.group(3)+' '+match.group(4))
             continue
-
+        
         match = re.search(r'(\w\S{2,}( \S{,3})?)$', cmd)
         if match:
             guess = match.group(1)

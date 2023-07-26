@@ -38,15 +38,15 @@ Please look to the wiki to pick up or drop off more examples. Think of it as soc
 
 ## caveats
 
+When the UI shells out to **less** and we need to use Ctrl+C to exit it, this **SIGINT** affects **lsyncd** also (it auto-restarts), despite being inside **zap_run.pl** which supposedly handles that signal.
+
+Used **less** for lack of putting ascii colour codes in curses.
+
 the podman-run commands seem to exit(0) while they're still outputting stuff. [who knows why?](https://stackoverflow.com/questions/881388/double-fork-when-creating-a-daemon/5386753#5386753)
 
 You cannot restart commands via the UI, the jobs must be programmed to **%restart** or have a fixup for a particular behaviour to restart after.
 
 See **TODO / clear exit code on restart**, the UI may have stale exit codes.
-
-The UI's shelling out to **less**:
- - (which we must kill our way out of with Ctrl+C) leaks that SIGINT to eg lsyncd. Perhaps it should be via **zap_run.pl**?
- - seems to prevent the job thread from restarting any process.
 
 For more caveats, see `zap.py`
 

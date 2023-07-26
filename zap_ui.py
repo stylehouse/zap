@@ -131,11 +131,8 @@ def out_to_line(out):
 
 
 terminatables = []
-# ignore Ctrl+C intended for the `less` we use for job output
-#  seems to cause all our jobs to exit(-2)
-# kill it with Ctrl+| (pipe)
+# kill less on Ctrl+C
 def sigint_handler(signal, frame):
-    # Ignore the Ctrl+C signal here to prevent it from terminating the program
     for ism in terminatables:
         ism()
     pass
