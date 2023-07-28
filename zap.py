@@ -80,9 +80,6 @@ def dd(data,depth=7):
 #  the string is treated as a raw string
 #  and backslashes within the string are not treated as escape characters.
 cmd_source = r'''
-    # style_dev
-       cd ~/stylehouse
-        ./serve.pl
     # letz_dev
        lsyncd py/letz.lsyncdconf
         echo yep
@@ -101,17 +98,30 @@ cmd_source = r'''
        ssh gox
         cd src/letz
         podman run -v .:/app:exec -p 8000:8000 --rm -it --name cos1 cos npm run dev -- --port 8000 --host 0.0.0.0
-       ssh gox
-        ll nonexists
-       cd ~/src/letz
-        code .
-    # dev_fe
+
+       code .
+        # taken to this to dev modern javascript
        echo chromium \
-        http://editong.localhost:1812/ \
         http://192.168.122.92:5000/dir/ \
         http://192.168.122.92:8000/
+        # remove echo to enable
+
+# trusted environs:
+        
+    # style_dev
+       cd ~/stylehouse
+        ./serve.pl
+       echo chromium \
+        http://editong.localhost:1812/
+        # edits javascript as perl
+    # ipfs
+       py/ipfs.py
+        # < seems to output less via zap
+        #   should we seem more like a terminal to it?
+        
        
     # init
+     # see INSTALL
        lsyncd py/letz.lsyncdconf
          # < avoid sleep: when is this ready?
        ssh gox
