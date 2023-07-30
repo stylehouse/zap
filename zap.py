@@ -111,11 +111,13 @@ cmd_source = r'''
     # style_dev
        cd ~/stylehouse
         ./serve.pl
+        %restart
        echo chromium \
         http://editong.localhost:1812/
         # edits javascript as perl
     # ipfs
        py/ipfs.py
+        # < why can't this be %restart? it detects exit immediately, as flask daemonises..?
         # < seems to output less via zap
         #   should we seem more like a terminal to it?
         
