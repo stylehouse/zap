@@ -283,16 +283,30 @@ for system in systems:
 def give_job_fixup(job,command):
     if 'podman run' in command:
         job["listen_out"].append(fixup_for_podmanrun_job)
+    if 'py/ipfs.py' in command:
+        job["listen_out"].append(fixup_for_ipfs_job)
     # use the %restart job advice instead, less chatter
     #if 'lsyncd' in command:
     #    job["listen_out"].append(fixup_for_lsyncd_job)
 
+# these two are left running re-parented when we quit zap:
+
+def fixup_for_ipfs_job(job,out):
+    line = out['s']
+    if out["std"] == "err":
+        if 'Port 8000 is in use by another program. Either identify and stop that program' in line:
+            run_fixup(job,r"kill $(ps fuax | grep '/python3 py/ipfs.py' | grep -v grep | awk 'NR==1{print $2}')")
 def fixup_for_podmanrun_job(job,out):
     line = out['s']
     if out["std"] == "err":
         if m := re.search(r'the container name "(\S+)" is already in use', line):
             run_fixup(job,'podman rm -f {}'.format(m.group(1)))
             # < subsequent steps?
+
+# < GOING? just being a %restart job good enough?
+#   might be some outage while "fading"
+# was affected by Ctrl+C to the UI doing less
+#  as is serve.pl
 def fixup_for_lsyncd_job(job,out):
     line = out['s']
     if out["std"] == "out":

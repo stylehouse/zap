@@ -42,7 +42,15 @@ When the UI shells out to **less** and we need to use Ctrl+C to exit it, this **
 
 Used **less** for lack of putting ascii colour codes in curses.
 
-the podman-run commands seem to exit(0) while they're still outputting stuff. [who knows why?](https://stackoverflow.com/questions/881388/double-fork-when-creating-a-daemon/5386753#5386753)
+### exits
+
+The podman-run|ipfs commands seem to exit(125|0) while they're still outputting stuff. [who knows why?](https://stackoverflow.com/questions/881388/double-fork-when-creating-a-daemon/5386753#5386753) This means they can't %restart, because they always seem to need restarting.
+
+These commands are left running when zap exits, reparented to `/lib/systemd/systemd --user`. Via fixups they won't get in the way of a new zap instance.
+
+Needs knowledge. Ideally we handle Ctrl+C for zap exit and end jobs smoothly. Even knowing the process tree to track cpu|mem would be nice.
+
+### other
 
 You cannot restart commands via the UI, the jobs must be programmed to **%restart** or have a fixup for a particular behaviour to restart after.
 
@@ -54,9 +62,6 @@ For more caveats, see `zap.py`
 
 ## rewrite in golang
 lots of nice Console-UI things are over there
-
-## we dont exit podman-run properly
-Handle Ctrl+C for zap exit, terminate() jobs first.
 
 ## clear exit code on restart
 The fixups can't be gauged for failure, eg `podman rm -f cos1` often errs "container has already been removed", meaning good.
