@@ -38,9 +38,42 @@ Please look to the wiki to pick up or drop off more examples. Think of it as soc
 
 ## caveats
 
-When the UI shells out to **less** and we need to use Ctrl+C to exit it, this **SIGINT** affects **lsyncd** also (it auto-restarts), despite being inside **zap_run.pl** which supposedly handles that signal.
+When the UI shells out to **less** and we need to use Ctrl+C to exit it, this **SIGINT** affects **lsyncd** and **serve.pl** also (they auto-restart), despite being inside **zap_run.pl** which supposedly handles that signal.
 
 Used **less** for lack of putting ascii colour codes in curses.
+
+### buffering woes
+
+For some commands, streaming output from the process seems to be limited to whichever **run_job() / readaline()** comes first: out or err, but not both.
+
+For example, this job output shows only the STDOUT of this server fetching the same thing a few times:
+```
+   * Serving Flask app 'ipfs'
+   * Debug mode: on
+   File: ipfs/58/35ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd
+   File: ipfs/58/35ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd
+   File: ipfs/58/35ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd
+   File: ipfs/58/35ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd
+```
+
+Then if we kill it from another terminal:
+```kill $(ps fuax | grep '/python3 py/ipfs.py' | grep -v grep| awk 'NR==1{print $2}')```
+
+All the STDERR suddenly comes in:
+```
+! WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+!! * Running on http://127.0.0.1:8000
+!! Press CTRL+C to quit
+!! * Restarting with stat
+!! * Debugger is active!
+!! * Debugger PIN: 831-394-925
+!! 127.0.0.1 - - [31/Jul/2023 15:42:08] "GET /5835ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd HTTP/1.1" 200 -
+!! 127.0.0.1 - - [31/Jul/2023 15:42:09] "GET /5835ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd HTTP/1.1" 200 -
+!! 127.0.0.1 - - [31/Jul/2023 15:42:10] "GET /5835ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd HTTP/1.1" 200 -
+!! 127.0.0.1 - - [31/Jul/2023 15:42:10] "GET /5835ea2230e6b4ee2b6c3645038ccaa54c110c01f0a2bfa4cefabf32ffe008bd HTTP/1.1" 200 -
+```
+
+So STDERR is missing for every command, until it exits. Absurd.
 
 ### exits
 

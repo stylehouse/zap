@@ -8,6 +8,7 @@ import sys
 import re
 import json
 from pathlib import Path
+os.environ["PYTHONUNBUFFERED"] = "1"
 
 import zap_parser
 import zap_ui
@@ -116,7 +117,9 @@ cmd_source = r'''
         http://editong.localhost:1812/
         # edits javascript as perl
     # ipfs
-       py/ipfs.py
+       ssh sa
+        cd src/letz
+        py/ipfs.py
         # < why can't this be %restart? it detects exit immediately, as flask daemonises..?
         # < seems to output less via zap
         #   should we seem more like a terminal to it?
@@ -393,7 +396,7 @@ def run_job(job,actual_cmd=None,sleepytime=None):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 text=True,
-                                bufsize=0)
+                                bufsize=1)
     def readaline(ch,std):
         linesing = iter(std.readline, "")
         for line in linesing:
@@ -405,7 +408,6 @@ def run_job(job,actual_cmd=None,sleepytime=None):
             # downstreams to have in this thread eg fixup
             for cb in job["listen_out"]:
                 cb(job,out)
-    
     readaline('out',process.stdout)
     readaline('err',process.stderr)
 

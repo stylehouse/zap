@@ -149,7 +149,9 @@ def less_job(stdscr,job):
         while not event.is_set():
             if len(job["output"]) > index:
                 for out in job["output"][index:]:
-                    tmp.write(out_to_line(out).encode("utf-8"))
+                    line = out_to_line(out)
+                    # line = line[:3] + str(int(out["time"]-time.time())) + line[3:]
+                    tmp.write(line.encode("utf-8"))
                 tmp.flush()  # Flush the buffer to ensure data is written to the file
                 index = len(job["output"])
             time.sleep(0.1)  # Sleep for a short duration before checking for new items
