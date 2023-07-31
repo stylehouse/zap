@@ -35,10 +35,18 @@ def main(stdscr,i_job,job_i,systems):
         key = stdscr.getch()
 
         # Handle key events
-        if key == curses.KEY_UP and selected_row > 0:
-            selected_row -= 1
-        elif key == curses.KEY_DOWN and selected_row < job_i - 1:
-            selected_row += 1
+        if key == curses.KEY_UP:
+            if selected_row > 0:
+                selected_row -= 1
+            else:
+                # wrap up
+                selected_row = len(i_job) - 1
+        elif key == curses.KEY_DOWN:
+            if selected_row < job_i - 1:
+                selected_row += 1
+            else:
+                # wrap down
+                selected_row = 0
         elif isenter(key):
             # look into selected command
             job = i_job[selected_row]
