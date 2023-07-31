@@ -397,19 +397,29 @@ def run_job(job,actual_cmd=None,sleepytime=None):
                                 stderr=subprocess.PIPE,
                                 text=True,
                                 bufsize=1)
+    def eatline (ch,line):
+        # < do we want the ^ + and \n$
+        # seem to do \n before turning off TerminalColors, just remove it
+        line = re.sub("\n","",line)
+        out = iout(job,ch,line.strip())
+        diag(f"[{i}] std{ch}: "+out["s"])
+        # downstreams to have in this thread eg fixup
+        for cb in job["listen_out"]:
+            cb(job,out)
     def readaline(ch,std):
         linesing = iter(std.readline, "")
         for line in linesing:
-            # < do we want the ^ + and \n$
-            # seem to do \n before turning off TerminalColors, just remove it
-            line = re.sub("\n","",line)
-            out = iout(job,ch,line.strip())
-            diag(f"[{i}] std{ch}: "+out["s"])
-            # downstreams to have in this thread eg fixup
-            for cb in job["listen_out"]:
-                cb(job,out)
-    readaline('out',process.stdout)
-    readaline('err',process.stderr)
+            eatline(ch,line)
+    def dostdout():
+        readaline('out',process.stdout)
+    def dostderr():
+        readaline('err',process.stderr)
+    # it seems the job thread (from ThreadPoolExecutor())
+    #  becomes deadlocked given both of these to stream
+    threading.Thread(target=dostdout).start()
+    threading.Thread(target=dostderr).start()
+    
+    
 
     # stdin
     def inN(N):
@@ -439,13 +449,20 @@ def run_job(job,actual_cmd=None,sleepytime=None):
 
     job["exit_code"] = None
     
+    # from the check_jobs() thread
     def check1s():
+        # notice it exit
         exit_code = process.poll()
         if exit_code is not None:
             diag(f"[{i}] trouble! code:"+str(exit_code))
             job["exit_code"] = exit_code
             diag(f"[{i}] finito")
+
+            # < perhaps shouldn't stop
+            #   sometimes we get exit codes through here while stuff is still running
+            #   see README / caveats / exits
             job["check1s"] = lambda: 1
+
             # when the job produces an error code?
             if 'restart' in job:
                 iout(job,'fix'," ↺ job restart")
