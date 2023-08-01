@@ -288,12 +288,15 @@ def give_job_fixup(job,command):
         job["listen_out"].append(fixup_for_podmanrun_job)
     if 'py/ipfs.py' in command:
         job["listen_out"].append(fixup_for_ipfs_job)
+    if 'ssh ' in command:
+        job["listen_out"].append(fixup_for_ssh_job)
+    
     # use the %restart job advice instead, less chatter
     #if 'lsyncd' in command:
     #    job["listen_out"].append(fixup_for_lsyncd_job)
 
-# these two are left running re-parented when we quit zap:
-
+# these two are left running re-parented when we quit zap
+#  so these jobs cull their previous zombie selves
 def fixup_for_ipfs_job(job,out):
     line = out['s']
     if out["std"] == "err":
@@ -304,7 +307,14 @@ def fixup_for_podmanrun_job(job,out):
     if out["std"] == "err":
         if m := re.search(r'the container name "(\S+)" is already in use', line):
             run_fixup(job,'podman rm -f {}'.format(m.group(1)))
-            # < subsequent steps?
+
+# no ssh -> wake up vm host vm
+def fixup_for_ssh_job(job,out):
+    line = out['s']
+    if out["std"] == "err":
+        if m := re.search(r'^ssh: connect to host (\S+) port (\d+): (No route to host|Connection refused)', line):
+            run_fixup(job,' virsh start {}'.format(m.group(1)))
+            time.sleep(3)
 
 # < GOING? just being a %restart job good enough?
 #   might be some outage while "fading"
@@ -326,7 +336,7 @@ def run_fixup(job,cmd):
     iout(job,'fix'," oughtta fixup that with: {}".format(cmd))
 
     # should happen over there too
-    if 'ssh_around' in job:
+    if 'ssh_around' in job and cmd[0] != " ":
         cmd = job['ssh_around']+' '+json.dumps(cmd)
     
     # adding this other command to job.output
