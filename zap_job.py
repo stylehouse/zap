@@ -5,6 +5,9 @@ import subprocess
 import json
 import re
 from pathlib import Path
+phi = 1.613
+
+from zap_less import truncated_job_output
 
 def give_job_fixup(job,command):
     if 'podman run' in command:
@@ -84,7 +87,9 @@ def restart_job(job):
     # stop what we were doing
     job['process'].terminate()
 
+    # backflip logo in job label
     remark_job_ui(job,"↺")
+    #  and marked in job output
     iout(job,'fix'," ↺ manual restart")
 
     run_job(job)
@@ -197,11 +202,16 @@ def run_job(job,actual_cmd=None,sleepytime=None):
         inN([password])
 
     job["exit_code"] = None
-    
+    slow = freq(0.1)
     # from the check_jobs() thread
     def check1s():
+        # schedule slower checks
+        if slow():
+            check1m()
+
         # notice it exit
         exit_code = process.poll()
+
         if exit_code is not None:
             diag(f"[{i}] trouble! code:"+str(exit_code))
             job["exit_code"] = exit_code
@@ -219,13 +229,38 @@ def run_job(job,actual_cmd=None,sleepytime=None):
                 # we are the check_jobs thread currently
                 # Create a new thread and call run_job(job) within that thread
                 threading.Thread(target=run_job, args=[job,None,'sleepy']).start()
+    
+    def check1m():
+        check_truncate_job_output(job)
+            
+        
     job["check1s"] = check1s
+
+def check_truncate_job_output(job):
+    if len(job["output"]) > 5000:
+        # truncating output here thirds our memory leakage
+        job["output"] = job["output"][-3000:]
+        truncated_job_output(job)
+
+
+
 
 # 3s remark drawn in draw_job_label()
 def remark_job_ui(job,say):
     def later(say):
-        time.sleep(3)
-        if job["notice"] == say:
+        time.sleep(phi)
+        if "notice" in job and job["notice"] == say:
             del job["notice"]
     job["notice"] = say
     threading.Thread(target=later, args=[say]).start()
+
+# for a loop full of if branches going off at different intervals
+def freq(hz):
+    hence = 0
+    period = 1/hz
+    def when():
+        nonlocal hence
+        if time.time() - hence > period:
+            hence = time.time()
+            return 1
+    return when

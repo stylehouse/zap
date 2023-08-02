@@ -52,7 +52,9 @@ Needs knowledge. Ideally we handle Ctrl+C for zap exit and end jobs smoothly. Ev
 
 ### other
 
-You cannot restart commands via the UI, the jobs must be programmed to **%restart** or have a fixup for a particular behaviour to restart after.
+Periodically truncates **job.output** to 3000 to ease memory leakage.
+
+Won't run forever, eg deep space probe.
 
 See **TODO / clear exit code on restart**, the UI may have stale exit codes.
 
@@ -66,10 +68,8 @@ lots of nice Console-UI things are over there
 ## clear exit code on restart
 The fixups can't be gauged for failure, eg `podman rm -f cos1` often errs "container has already been removed", meaning good.
 
-## restart failed jobs|systems
-Besides making the job one that **%restart**s, operator should be able to restart jobs at will, without restarting `zap.py`.
-
-restart 2x daily: memleak mode.
+## memleak mode
+restart job 2x daily: memleak mode
 
 ## dependencies
 we could need A finished before B starts. perhaps the cmd_source sets or gets markers.

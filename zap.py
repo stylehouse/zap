@@ -204,6 +204,7 @@ cmd_source = r'''
         echo "there"
         sleep 0.13
         echo "around"
+       python garbagio.py
 '''
 
 

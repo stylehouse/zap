@@ -2,18 +2,14 @@
 import curses
 import time
 import textwrap
-import re
-import subprocess
 import threading
-import os
-import tempfile
-import signal
 import pprint
 def dd(data,depth=7):
     pp = pprint.PrettyPrinter(depth=depth)
     pp.pprint(data)
 
 from zap_job import restart_job
+from zap_less import less_job
 
 def begin(i_job,job_i,systems):
     curses.wrapper(main,i_job,job_i,systems)
@@ -143,91 +139,7 @@ def draw_job_label(stdscr,job,i):
         says = job["notice"]
         stdscr.addstr(i, col_weather+1, says)
 
-def out_to_line(out):
-    ind = '   '
-    if out["std"] == 'err':
-        ind = '!! '
-    
-    if out["std"] == 'fix':
-        ind = '🔧  '
-    
-    line = ind + out["s"] + "\n"
-    
-    return line
-
-
-terminatables = []
-# kill less on Ctrl+C
-def sigint_handler(signal, frame):
-    for ism in terminatables:
-        ism()
-    pass
-
-def less_job(stdscr,job):
-    # End curses.
-    curses.endwin()
-    tmp = tempfile.NamedTemporaryFile()
-    event = threading.Event()
-    # fork to write job.output stream for less to read
-    index = 0  # Keep track of the last processed index in job.output
-    def write_thread(tmp,event):
-        index = 0  # Keep track of the last processed index in job.output
-        while not event.is_set():
-            if len(job["output"]) > index:
-                for out in job["output"][index:]:
-                    line = out_to_line(out)
-                    # line = line[:3] + str(int(out["time"]-time.time())) + line[3:]
-                    tmp.write(line.encode("utf-8"))
-                tmp.flush()  # Flush the buffer to ensure data is written to the file
-                index = len(job["output"])
-            time.sleep(0.1)  # Sleep for a short duration before checking for new items
-    write_thread = threading.Thread(target=write_thread, args=[tmp,event])
-    write_thread.start()
-
-
-
-    # Set the custom signal handler for SIGINT (Ctrl+C)
-    signal.signal(signal.SIGINT, sigint_handler)
-    
-    # Run `less` with the job output.
-    #os.system("less -R +F {}".format(tmp.name))
-    less_process = subprocess.Popen(["less", "-R", "+F", tmp.name])
-    terminator = lambda: less_process.terminate()
-    terminatables.append(terminator)
-    less_process.communicate()  # Wait for the less process to complete
-    terminatables.remove(terminator)
-
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-    # Signal the thread to finish.
-    event.set()
-    
-    # if developing around here
-    #  possible error message sitting in the terminal after less before curses
-    #  Ctrl-Z somewhere might show it too
-    #time.sleep(0.23)
-
-    # consider the matter settled
-    job.pop("unseen_err", None)
-
-    # Initialize curses again.
-    stdscr = curses.initscr()
-    # Return stdscr back to the main loop (will view_systems())
-    return stdscr
-
-
-
 
 def isenter(key):
     return key == curses.KEY_ENTER or key == ord('\n')
 
-# for a loop full of if branches going off at different intervals
-def freq(hz):
-    hence = 0
-    period = 1/hz
-    def when():
-        nonlocal hence
-        if time.time() - hence > period:
-            hence = time.time()
-            return 1
-    return when
