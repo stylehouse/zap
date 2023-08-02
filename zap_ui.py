@@ -57,7 +57,6 @@ def main(stdscr,i_job,job_i,systems):
                 selected_row += 1
             else:
                 # wrap down
-                
                 selected_row = 0
         elif key == ord('R') or  key == ord('r'):
             job =  i_job[selected_row]

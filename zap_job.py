@@ -74,7 +74,7 @@ def run_fixup(job,cmd):
 
     # < report errors (exit code or any stderr) into job.fixup, so the ui say failure
     # retry job
-    remark_job_ui(job,"↺")
+    remark_job_ui(job,"🔧↺")
     iout(job,'fix'," ↺ fixup applied! restarting")
     job.pop("unseen_err", None)
     run_job(job)
@@ -218,7 +218,7 @@ def run_job(job,actual_cmd=None,sleepytime=None):
                 iout(job,'fix'," ↺ job restart")
                 # we are the check_jobs thread currently
                 # Create a new thread and call run_job(job) within that thread
-                threading.Thread(target=run_job, args=(job,None,'sleepy')).start()
+                threading.Thread(target=run_job, args=[job,None,'sleepy']).start()
     job["check1s"] = check1s
 
 # 3s remark drawn in draw_job_label()
@@ -228,4 +228,4 @@ def remark_job_ui(job,say):
         if job["notice"] == say:
             del job["notice"]
     job["notice"] = say
-    threading.Thread(target=later, args=(say,)).start()
+    threading.Thread(target=later, args=[say]).start()
