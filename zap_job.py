@@ -53,6 +53,7 @@ def fixup_for_lsyncd_job(job,out):
 
 
 def run_fixup(job,cmd):
+    remark_job_ui(job,"🔧")
     # stop what we were doing
     job['process'].terminate()
     # make a heading and say line in job.output, with out.std=head
@@ -65,13 +66,27 @@ def run_fixup(job,cmd):
     # adding this other command to job.output
     run_job(job,cmd)
     if job["exit_code"]:
-        iout(job,'fix',"🔥fixup failed!🔥stopping🔥🔥")
-        return
+        # < never happens? shouldn't be trusted?
+        remark_job_ui(job,"🔥")
+        iout(job,'fix',"🔥fixup failed!🔥🔥🔥")
+        time.sleep(0.3)
+        #return
 
     # < report errors (exit code or any stderr) into job.fixup, so the ui say failure
     # retry job
-    iout(job,'fix'," fixup applied! retrying")
+    remark_job_ui(job,"↺")
+    iout(job,'fix'," ↺ fixup applied! restarting")
     job.pop("unseen_err", None)
+    run_job(job)
+
+
+def restart_job(job):
+    # stop what we were doing
+    job['process'].terminate()
+
+    remark_job_ui(job,"↺")
+    iout(job,'fix'," ↺ manual restart")
+
     run_job(job)
 
 
@@ -199,8 +214,18 @@ def run_job(job,actual_cmd=None,sleepytime=None):
 
             # when the job produces an error code?
             if 'restart' in job:
+                remark_job_ui(job,"↺")
                 iout(job,'fix'," ↺ job restart")
                 # we are the check_jobs thread currently
                 # Create a new thread and call run_job(job) within that thread
                 threading.Thread(target=run_job, args=(job,None,'sleepy')).start()
     job["check1s"] = check1s
+
+# 3s remark drawn in draw_job_label()
+def remark_job_ui(job,say):
+    def later(say):
+        time.sleep(3)
+        if job["notice"] == say:
+            del job["notice"]
+    job["notice"] = say
+    threading.Thread(target=later, args=(say,)).start()

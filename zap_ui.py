@@ -1,7 +1,6 @@
 
 import curses
 import time
-import pprint
 import textwrap
 import re
 import subprocess
@@ -9,13 +8,21 @@ import threading
 import os
 import tempfile
 import signal
+import pprint
 def dd(data,depth=7):
     pp = pprint.PrettyPrinter(depth=depth)
     pp.pprint(data)
 
+from zap_job import restart_job
 
 def begin(i_job,job_i,systems):
     curses.wrapper(main,i_job,job_i,systems)
+
+def dothing(job):
+    threading.Thread(target=thred, args=[job]).start()
+def thred(job):
+    restart_job(job)
+
 
 def main(stdscr,i_job,job_i,systems):
     # Initialize curses settings
@@ -23,6 +30,8 @@ def main(stdscr,i_job,job_i,systems):
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
     # for non-blocking stdscr.getch() (loop must sleep)
     stdscr.nodelay(1)
+    # Define the dimensions of the interface
+    rows, cols = stdscr.getmaxyx()
 
     # Initially selected row
     selected_row = 0
@@ -30,6 +39,8 @@ def main(stdscr,i_job,job_i,systems):
     # Draw the interface
     view_systems(stdscr, systems, selected_row)
 
+    # Clear the screen
+    stdscr.clear()
     # Event loop
     while True:
         key = stdscr.getch()
@@ -46,7 +57,12 @@ def main(stdscr,i_job,job_i,systems):
                 selected_row += 1
             else:
                 # wrap down
+                
                 selected_row = 0
+        elif key == ord('R') or  key == ord('r'):
+            job =  i_job[selected_row]
+            threading.Thread(target=restart_job, args=[job]).start()
+            stdscr.addstr(rows-2, 2, "job restarting")
         elif isenter(key):
             # look into selected command
             job = i_job[selected_row]
@@ -58,6 +74,8 @@ def main(stdscr,i_job,job_i,systems):
         # Refresh the screen
         stdscr.refresh()
         time.sleep(0.1)
+        # Clear the screen
+        stdscr.clear()
 
 # view everything
 #  list of jobs and their state
@@ -74,8 +92,6 @@ def dotdotdotat(s,n):
 
 
 def view_systems(stdscr, systems, selected_row):
-    # Clear the screen
-    stdscr.clear()
 
     # Define the dimensions of the interface
     rows, cols = stdscr.getmaxyx()
@@ -124,6 +140,9 @@ def draw_job_label(stdscr,job,i):
         stdscr.addstr(i, col_in, "!yet?")
     if "unseen_err" in job:
         stdscr.addstr(i, col_weather, "🔥")
+    if "notice" in job:
+        says = job["notice"]
+        stdscr.addstr(i, col_weather+1, says)
 
 def out_to_line(out):
     ind = '   '
