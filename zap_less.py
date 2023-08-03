@@ -27,19 +27,11 @@ def killall():
     for ism in terminatables:
         ism()
 
-less_interruptables = []
 def truncated_job_output(job):
+    # from the check_jobs() thread
     # can we simply:
     job["reless_please"] = 1
     killall()
-
-    # < GOING naive civility of talking about the truncation
-    # < if the file could be replaced, less might follow better than it does a truncation
-    #   haven't tried --follow-name.
-    # for jobless in less_interruptables:
-    #     if jobless["job"] != job:
-    #         continue
-    #     jobless["interrupt"].set()
 
 def less_job(stdscr,job):
     # End curses.
@@ -47,25 +39,12 @@ def less_job(stdscr,job):
 
     tmp = tempfile.NamedTemporaryFile()
     stop_less_event = threading.Event()
-    trunc_less_event = threading.Event()
-    jobless = {"job":job, "interrupt":trunc_less_event}
-    less_interruptables.append(jobless)
 
     # fork to write job.output stream for less to read
     index = 0  # Keep track of the last processed index in job.output
     def write_thread(tmp,stop_less_event):
         index = 0  # Keep track of the last processed index in job.output
         while not stop_less_event.is_set():
-            if trunc_less_event.is_set():
-                # < GOING this is currently worked around in truncated_job_output()
-                # according to https://python.hotexamples.com/examples/tempfile/TemporaryFile/truncate/python-temporaryfile-truncate-method-examples.html
-                #  not in docs: https://docs.python.org/3/library/tempfile.html
-                tmp.seek(0)
-                tmp.truncate()
-                # we will then write all remaining lines out again
-                index = 0
-                # < implement a signal handler in less that does this?
-                #os.kill(less_process.pid, signal.SIGUSR1)
             if len(job["output"]) > index:
                 for out in job["output"][index:]:
                     line = out_to_line(out)
@@ -97,7 +76,6 @@ def less_job(stdscr,job):
 
     # Signal the thread to finish.
     stop_less_event.set()
-    less_interruptables.remove(jobless)
     
     # if developing around here
     #  possible error message sitting in the terminal after less before curses

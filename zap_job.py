@@ -116,12 +116,12 @@ script_dir = os.path.dirname(script_path)
 # Construct the full path to zap_run.pl
 zap_run_path = os.path.join(script_dir, 'zap_run.pl')
 
+def diag(s):
+    #print(s)
+    1
 def run_job(job,actual_cmd=None,sleepytime=None):
     i = job["i"]
     command = actual_cmd or job["command"]
-    def diag(s):
-        #print(s)
-        1
     if sleepytime:
         # job.restart should not burn cpu
         time.sleep(2)
@@ -151,30 +151,8 @@ def run_job(job,actual_cmd=None,sleepytime=None):
                                 stderr=subprocess.PIPE,
                                 text=True,
                                 bufsize=1)
-    def eatline (ch,line):
-        # < do we want the ^ + and \n$
-        # seem to do \n before turning off TerminalColors, just remove it
-        line = re.sub("\n","",line)
-        out = iout(job,ch,line.strip())
-        diag(f"[{i}] std{ch}: "+out["s"])
-        # downstreams to have in this thread eg fixup
-        for cb in job["listen_out"]:
-            cb(job,out)
-    def readaline(ch,std):
-        linesing = iter(std.readline, "")
-        for line in linesing:
-            eatline(ch,line)
-    def dostdout():
-        readaline('out',process.stdout)
-    def dostderr():
-        readaline('err',process.stderr)
-    # it seems the job thread (from ThreadPoolExecutor())
-    #  becomes deadlocked given both of these to stream
-    threading.Thread(target=dostdout).start()
-    threading.Thread(target=dostderr).start()
+    output_handlers(job,process)
     
-    
-
     # stdin
     def inN(N):
         if not "wrote_stdin" in job:
@@ -200,7 +178,7 @@ def run_job(job,actual_cmd=None,sleepytime=None):
         #
         time.sleep(0.4)
         inN([password])
-
+    
     job["exit_code"] = None
     slow = freq(0.1)
     # from the check_jobs() thread
@@ -208,43 +186,62 @@ def run_job(job,actual_cmd=None,sleepytime=None):
         # schedule slower checks
         if slow():
             check1m()
-
-        # notice it exit
-        exit_code = process.poll()
-
-        if exit_code is not None:
-            diag(f"[{i}] trouble! code:"+str(exit_code))
-            job["exit_code"] = exit_code
-            diag(f"[{i}] finito")
-
-            # < perhaps shouldn't stop
-            #   sometimes we get exit codes through here while stuff is still running
-            #   see README / caveats / exits
-            job["check1s"] = lambda: 1
-
-            # when the job produces an error code?
-            if 'restart' in job:
-                remark_job_ui(job,"↺")
-                iout(job,'fix'," ↺ job restart")
-                # we are the check_jobs thread currently
-                # Create a new thread and call run_job(job) within that thread
-                threading.Thread(target=run_job, args=[job,None,'sleepy']).start()
+        # watch for falldown
+        check_exit_code(job)
     
     def check1m():
         check_truncate_job_output(job)
-            
-        
+    
     job["check1s"] = check1s
 
+def output_handlers(job,process):
+    def eatline (ch,line):
+        # < do we want the ^ + and \n$
+        # seem to do \n before turning off TerminalColors, just remove it
+        line = re.sub("\n","",line)
+        out = iout(job,ch,line.strip())
+        # downstreams to have in this thread eg fixup
+        for cb in job["listen_out"]:
+            cb(job,out)
+    def readaline(ch,std):
+        linesing = iter(std.readline, "")
+        for line in linesing:
+            eatline(ch,line)
+    def dostdout():
+        readaline('out',process.stdout)
+    def dostderr():
+        readaline('err',process.stderr)
+    # it seems the job thread (from ThreadPoolExecutor())
+    #  becomes deadlocked given both of these to stream
+    threading.Thread(target=dostdout).start()
+    threading.Thread(target=dostderr).start()
+    
 def check_truncate_job_output(job):
     if len(job["output"]) > 5000:
         # truncating output here thirds our memory leakage
         job["output"] = job["output"][-3000:]
         truncated_job_output(job)
 
+def check_exit_code(job):
+    # notice it exit
+    exit_code = job["process"].poll()
 
+    if exit_code is not None:
+        job["exit_code"] = exit_code
 
+        # < perhaps shouldn't stop
+        #   sometimes we get exit codes through here while stuff is still running
+        #   see README / caveats / exits
+        job["check1s"] = lambda: 1
 
+        # when the job produces an error code?
+        if 'restart' in job:
+            remark_job_ui(job,"↺")
+            iout(job,'fix'," ↺ job restart")
+            # we are the check_jobs thread currently
+            # Create a new thread and call run_job(job) within that thread
+            threading.Thread(target=run_job, args=[job,None,'sleepy']).start()
+    
 # 3s remark drawn in draw_job_label()
 def remark_job_ui(job,say):
     def later(say):

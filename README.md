@@ -52,7 +52,7 @@ Needs knowledge. Ideally we handle Ctrl+C for zap exit and end jobs smoothly. Ev
 
 ### other
 
-Periodically truncates **job.output** to 3000 to ease memory leakage.
+Periodically truncates **job.output** to 3000.
 
 Won't run forever, eg deep space probe.
 
@@ -72,9 +72,11 @@ The fixups can't be gauged for failure, eg `podman rm -f cos1` often errs "conta
 restart job 2x daily: memleak mode
 
 ## dependencies
-we could need A finished before B starts. perhaps the cmd_source sets or gets markers.
+Could need A finished before B starts. perhaps the cmd_source sets or gets markers. do **%early** before others?
 
-do **%early** before others? could have a fixup notice when it says Ready, etc.
+Achieve **job.ready**=True when exit(0) or eg **lsyncd** could have a fixup notice when it says Ready, since it runs forever.
+
+Workaround: `sleep 1` before the **%later** jobs. Potential very elsewhere to run the dev server while still copying its files into place for the first time.
 
 ## improve view_systems
 make the system/job/cmd hierarchy clearer, toggle them on|off...
