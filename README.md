@@ -6,22 +6,12 @@ https://github.com/stylehouse/zap/assets/20439374/0800f95b-b321-46e8-a03d-103786
 # description
 
 Runs and watches commands specified in **zap.py**, for bringing up flocks of programs, some management.
-<<<<<<< HEAD
-
-Example dev environment for [letz](https://github.com/stylehouse/letz)
-=======
->>>>>>> 2157e0f (doc, keep more job.output)
 
 - can fixup common errors with the commands
 - curses interface which becomes `less -R` (supports ansii colours) when looking in to job output (not a proper terminal), Ctrl+C twice to return from it.
 - press **R** to restart a job
-<<<<<<< HEAD
-- Jobs (of commands) are grouped into systems, so individual `./zap.py $system` can be run, or all will be.
-- A System's Jobs all run in parallel, a Job's commands are sequential (joined by &&)
-=======
 - Jobs (of commands) are grouped into systems, so individual `./zap.py $system` can be run, or most will be.
 - all jobs at once, each job's commands in sequence (joined by &&)
->>>>>>> 2157e0f (doc, keep more job.output)
 
 Instead of a village of terminals to constantly rebuild.
 
@@ -29,12 +19,6 @@ Instead of a village of terminals to constantly rebuild.
 
 Not sure. I have only heard of "the supervisor process" being a project-bound minimalist perl script or so.
 
-<<<<<<< HEAD
-**systemd** ~~ zap for Linux systems: switches services on. I don't know it and require hacks like fixup.
-**tmux** ~~ zap having a bunch of terminal sessions to show you, predefined and instantiated. Again, fixup.
-**kubernetes** ~~ zap orchestrating vms with ports and mounts is like infrastructure as code.
- Possibly a bit like a **tmux** session? But also slightly infrastructure as code? I am too out of the **k9** world, there must be similar tools somewhere...
-=======
 Keen on the idea of healing a command with another command automatically. Computers should have developed a receptor for gathering this knowledge by now, so here it is.
 
 **systemd** ~~ zap for LinuxSystem clutter: switches services on, might monitor, not sure.
@@ -42,7 +26,6 @@ Keen on the idea of healing a command with another command automatically. Comput
 **tmux** ~~ a bunch of terminal sessions to show you, predefined and instantiated.
 
 **kubernetes** ~~ zap orchestrating vms with ports and mounts is like infrastructure as code.
->>>>>>> 2157e0f (doc, keep more job.output)
 
 # installation
 
@@ -145,6 +128,10 @@ the general-knowledge version of the above.
 sequences of commands that diagnose & rectify situations.
 
 should distribute only chunks of cmd_source, which would have a general-knowledge section besides the systems definition.
+
+# see also
+
+The example dev environment is for [letz](https://github.com/stylehouse/letz)
 
 # support
 
