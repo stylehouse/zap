@@ -217,9 +217,9 @@ def output_handlers(job,process):
     threading.Thread(target=dostderr).start()
     
 def check_truncate_job_output(job):
-    if len(job["output"]) > 5000:
+    if len(job["output"]) > 12000:
         # truncating output here thirds our memory leakage
-        job["output"] = job["output"][-3000:]
+        job["output"] = job["output"][-6000:]
         truncated_job_output(job)
 
 def check_exit_code(job):
