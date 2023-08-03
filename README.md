@@ -3,22 +3,36 @@ supervisor running|monitoring all these commands
 
 https://github.com/stylehouse/zap/assets/20439374/0800f95b-b321-46e8-a03d-103786e080b6
 
-## description
+# description
 
-runs the commands specified in zap.py. they a split into systems, so individual `./zap.py $system` can be run, or all will be.
+Runs and watches commands specified in **zap.py**, for bringing up flocks of programs, some management.
 
-I used it to make a dev environment for [letz](https://github.com/stylehouse/letz), instead of a village of terminals to constantly rebuild.
+Example dev environment for [letz](https://github.com/stylehouse/letz)
 
 - can fixup common errors with the commands
-- has curses interface which becomes `less -R` (supports ansii colours and hyperlinks) when looking at commands (not a proper terminal)
+- curses interface which becomes `less -R` (supports ansii colours) when looking in to job output (not a proper terminal), Ctrl+C twice to return from it.
+- press **R** to restart a job
+- Jobs (of commands) are grouped into systems, so individual `./zap.py $system` can be run, or all will be.
+- A System's Jobs all run in parallel, a Job's commands are sequential (joined by &&)
 
-## installation
+Instead of a village of terminals to constantly rebuild.
+
+# similar tools
+
+Not sure. I have only heard of "the supervisor process" being a project-bound minimalist perl script or so.
+
+**systemd** ~~ zap for Linux systems: switches services on. I don't know it and require hacks like fixup.
+**tmux** ~~ zap having a bunch of terminal sessions to show you, predefined and instantiated. Again, fixup.
+**kubernetes** ~~ zap orchestrating vms with ports and mounts is like infrastructure as code.
+ Possibly a bit like a **tmux** session? But also slightly infrastructure as code? I am too out of the **k9** world, there must be similar tools somewhere...
+
+# installation
 
 * copy somewhere
 * adjust the commands specified in `zap.py` for yourself
   * various podman-build are implied
 
-## long description
+# long description
 
 A terminal program to automate running and monitoring all these commands, having fixups for common error-response side-tracking.
 
@@ -28,21 +42,21 @@ Run a bunch of commands at once, tailing the outputs.
 
 Sysadmin glue code for clusters of vms with various sshfs etc commands involved in their running.
 
-## examples
+# examples
 
 In `zap.py` is configured several sequences of commands,
     the first is usually an ssh session the rest happen in,
-    and we wait observing the command forever.
+    and we wait observing the command forever, unless it says **%restart**
 
 Please look to the wiki to pick up or drop off more examples. Think of it as social media for software.
 
-## caveats
+# caveats
 
 When the UI shells out to **less** and we need to use Ctrl+C to exit it, this **SIGINT** affects **lsyncd** and **serve.pl** also (they auto-restart), despite being inside **zap_run.pl** which supposedly handles that signal.
 
-Used **less** for lack of putting ascii colour codes in curses.
+We shell out to **less** for lack of putting ascii colour codes in curses.
 
-### exits
+## exits
 
 The podman-run|ipfs commands seem to exit(125|0) while they're still outputting stuff. [who knows why?](https://stackoverflow.com/questions/881388/double-fork-when-creating-a-daemon/5386753#5386753) This means they can't %restart, because they always seem to need restarting.
 
@@ -50,7 +64,7 @@ These commands are left running when zap exits, reparented to `/lib/systemd/syst
 
 Needs knowledge. Ideally we handle Ctrl+C for zap exit and end jobs smoothly. Even knowing the process tree to track cpu|mem would be nice.
 
-### other
+## other
 
 Periodically truncates **job.output** to 3000.
 
@@ -68,8 +82,14 @@ lots of nice Console-UI things are over there
 ## clear exit code on restart
 The fixups can't be gauged for failure, eg `podman rm -f cos1` often errs "container has already been removed", meaning good.
 
+## logger
+Python errors are obscured by curses but apparently this will get them, avail them as a job.
+
 ## memleak mode
 restart job 2x daily: memleak mode
+
+## port forwarding
+Find out how to efficiently port forward (without `SSH -L`)
 
 ## dependencies
 Could need A finished before B starts. perhaps the cmd_source sets or gets markers. do **%early** before others?
