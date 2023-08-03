@@ -19,9 +19,18 @@ def out_to_line(out):
     return line
 
 terminatables = []
-# kill less on Ctrl+C
+repeated_CtrlC = {}
+# less:
+#  on Ctrl+C comes out of tail mode, press F to get back in
+#  twice to exit back to zap job listing
 def sigint_handler(signal, frame):
-    killall()
+    if 'yes' in repeated_CtrlC:
+        killall()
+    repeated_CtrlC["yes"] = 1
+    def later(repeated_CtrlC):
+        time.sleep(1)
+        del repeated_CtrlC["yes"]
+    threading.Thread(target=later, args=[repeated_CtrlC]).start()
     pass
 def killall():
     for ism in terminatables:
