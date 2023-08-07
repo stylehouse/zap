@@ -29,7 +29,8 @@ def sigint_handler(signal, frame):
     repeated_CtrlC["yes"] = 1
     def later(repeated_CtrlC):
         time.sleep(1)
-        del repeated_CtrlC["yes"]
+        if "yes" in repeated_CtrlC:
+            del repeated_CtrlC["yes"]
     threading.Thread(target=later, args=[repeated_CtrlC]).start()
     pass
 def killall():
