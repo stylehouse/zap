@@ -33,13 +33,16 @@ def fixup_for_podmanrun_job(job,out):
     if out["std"] == "err":
         if m := re.search(r'the container name "(\S+)" is already in use', line):
             run_fixup(job,'podman rm -f {}'.format(m.group(1)))
-
+# < move this nearer the config, or insist on hostname == vmname?
+hostname_not_vmname = {"n":"nico"}
 # no ssh -> wake up vm host vm
 def fixup_for_ssh_job(job,out):
     line = out['s']
     if out["std"] == "err":
         if m := re.search(r'^ssh: connect to host (\S+) port (\d+): (No route to host|Connection refused)', line):
-            run_fixup(job,' virsh start {}'.format(m.group(1)))
+            host = m.group(1)
+            vmname = hostname_not_vmname[host] if host in hostname_not_vmname else host
+            run_fixup(job,' virsh start {}'.format(vmname))
             time.sleep(3)
 
 # < GOING? just being a %restart job good enough?
