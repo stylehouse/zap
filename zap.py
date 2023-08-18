@@ -149,8 +149,8 @@ cmd_source = r'''
          # it sometimes drops files where it cd?
         nicotine
          # a python window
-       upnpc -r 2234 TCP
-        ssh -L 0.0.0.0:2234:n:2234 n
+       upnpc -r 2235 TCP
+        ssh -L 0.0.0.0:2235:n:2235 n
          # let peer in
 
     # test
