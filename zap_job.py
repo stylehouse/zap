@@ -31,7 +31,10 @@ def fixup_for_ipfs_job(job,out):
 def fixup_for_podmanrun_job(job,out):
     line = out['s']
     if out["std"] == "err":
-        if m := re.search(r'the container name "(\S+)" is already in use', line):
+        m = re.search(r'the container name "(\S+)" is already in use', line)
+        if not m:
+            m = re.search(r'Error: name "(\S+)" is in use: container already exists', line)
+        if m:
             run_fixup(job,'podman rm -f {}'.format(m.group(1)))
 # < move this nearer the config, or insist on hostname == vmname?
 hostname_not_vmname = {"n":"nico"}
