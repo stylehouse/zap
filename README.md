@@ -63,7 +63,9 @@ The podman-run|ipfs commands seem to exit(125|0) while they're still outputting 
 
 These commands are left running when zap exits, reparented to `/lib/systemd/systemd --user`. Via fixups they won't get in the way of a new zap instance.
 
-Needs knowledge. Ideally we handle Ctrl+C for zap exit and end jobs smoothly. Even knowing the process tree to track cpu|mem would be nice.
+Needs knowledge. Ideally we handle Ctrl+C for zap exit and end jobs smoothly.
+It now takes multiple Ctrl+C to kill zap et al and your terminal may need a `reset`.
+Even knowing the process tree to track cpu|mem would be nice.
 
 ## other
 

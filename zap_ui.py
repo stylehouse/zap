@@ -11,8 +11,11 @@ def dd(data,depth=7):
 from zap_job import restart_job
 from zap_less import less_job
 
-def begin(i_job,job_i,systems):
-    curses.wrapper(main,i_job,job_i,systems)
+def begin(i_job, job_i, systems):
+    try:
+        curses.wrapper(main, i_job, job_i, systems)
+    except KeyboardInterrupt:
+        curses.endwin()  # Reset the terminal before exiting
 
 def dothing(job):
     threading.Thread(target=thred, args=[job]).start()
