@@ -287,20 +287,10 @@ for system in systems:
 
 
 def all_systems_go():
-    # < figure out if any of this can be less terrifying
-    # max_workers so that all jobs can stay happening
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Submit each command to the executor
-        future_results = []
-
-        for system in systems:
-            jobs = system['jobs']
-            for job in jobs:
-                future_results.append(executor.submit(run_job, job))
-
-        # Process the results as they become available
-        for future in concurrent.futures.as_completed(future_results):
-            result = future.result()
+    for system in systems:
+        jobs = system['jobs']
+        for job in jobs:
+            threading.Thread(target=run_job, args=[job]).start()
 
 
 # run commands without blocking the UI
