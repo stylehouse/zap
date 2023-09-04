@@ -95,10 +95,10 @@ cmd_source = r'''
          # v is the mount at gox:~s/v, goes into:
        ssh gox
         cd src/letz
-        podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name pyt py bash -c './yt.sh'
+        podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name pyt py bash -c 'python py/serve.py'
        ssh gox
         cd src/letz
-        podman run -v .:/app:exec -p 8000:8000 --rm -it --name cos1 cos npm run dev -- --port 8000 --host 0.0.0.0
+        podman run -v .:/app:exec -p 8000:8000 --rm -it --name cos1 cos bash -ci 'bun run dev -- --port 8000 --host 0.0.0.0'
 
        code .
         # taken to this to dev modern javascript
@@ -127,8 +127,13 @@ cmd_source = r'''
        
     # init
      # see INSTALL
+     # < avoid sleep: when is the previous job ready?
+     # < this seems to end up using 20G of disk on gox
+     #   perhaps we should make cos FROM bun, and do imagemagick in the py container.
+       ssh gox
+        # lsyncd expects src/ to exist
+        mkdir -p src/letz
        lsyncd py/letz.lsyncdconf
-         # < avoid sleep: when is this ready?
        ssh gox
         sleep 1
         cd src/letz
