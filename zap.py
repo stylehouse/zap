@@ -82,25 +82,23 @@ def dd(data,depth=7):
 #  and backslashes within the string are not treated as escape characters.
 cmd_source = r'''
     # letz_dev
-       lsyncd py/letz.lsyncdconf
-        echo yep
-        %restart
+    #    lsyncd py/letz.lsyncdconf
+    #     echo yep
+    #     %restart
          #    this seems to get a SIGINT from the UI doing less
          # fast code deployment over ssh
          #  inotify on s: -> replication -> inotify on gox (-> vite etc)
          # unlike sshfs ~~ ftp needing ongoing ls
-       ssh -A gox
-        sshfs s:/media/s/Elvis/Photo v
+    #    ssh -A gox
+    #     sshfs s:/media/s/Elvis/Photo v
          # s is 192.168.122.1, virbr0 on sa
          # v is the mount at gox:~s/v, goes into:
-       ssh gox
-        cd src/letz
-        podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name pyt py bash -c 'python py/serve.py'
-       ssh gox
-        cd src/letz
-        podman run -v .:/app:exec -p 8000:8000 --rm -it --name cos1 cos bash -ci 'bun run dev -- --port 8000 --host 0.0.0.0'
+       cd ~/src/letz
+        podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name py1 py bash -c 'python py/serve.py'
+       cd ~/src/letz
+        podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
 
-       code .
+       /usr/share/codium/codium --ozone-platform=wayland ~/src/letz/
         # taken to this to dev modern javascript
        echo chromium \
         http://192.168.122.92:5000/dir/ \
@@ -117,9 +115,8 @@ cmd_source = r'''
         http://editong.localhost:1812/
         # edits javascript as perl
     # ipfs
-       ssh sa
-        cd src/letz
-        py/ipfs.py
+       cd ~/src/letz
+        podman run -v .:/app:exec -p 5000:5000 --rm -it --name py2 py bash -c 'python py/ipfs.py'
         # < why can't this be %restart? it detects exit immediately, as flask daemonises..?
         # < seems to output less via zap
         #   should we seem more like a terminal to it?
