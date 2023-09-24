@@ -93,9 +93,11 @@ cmd_source = r'''
     #     sshfs s:/media/s/Elvis/Photo v
          # s is 192.168.122.1, virbr0 on sa
          # v is the mount at gox:~s/v, goes into:
-       cd ~/src/letz
+       ssh sa
+        cd ~/src/letz
         podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name py1 py bash -c 'python py/serve.py'
-       cd ~/src/letz
+       ssh sa
+        cd ~/src/letz
         podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
 
        /usr/share/codium/codium --ozone-platform=wayland ~/src/letz/
@@ -115,8 +117,9 @@ cmd_source = r'''
         http://editong.localhost:1812/
         # edits javascript as perl
     # ipfs
-       cd ~/src/letz
-        podman run -v .:/app:exec -p 5000:5000 --rm -it --name py2 py bash -c 'python py/ipfs.py'
+       ssh sa
+        cd ~/src/letz
+        podman run -v .:/app:exec -p 8000:8000 --rm -it --name py2 py bash -c 'python py/ipfs.py'
         # < why can't this be %restart? it detects exit immediately, as flask daemonises..?
         # < seems to output less via zap
         #   should we seem more like a terminal to it?
@@ -208,8 +211,6 @@ cmd_source = r'''
         echo "around"
        python garbagio.py
 '''
-
-
 
 
 
