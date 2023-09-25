@@ -35,7 +35,7 @@ def fixup_for_podmanrun_job(job,out):
         if not m:
             m = re.search(r'Error: name "(\S+)" is in use: container already exists', line)
         if m:
-            run_fixup(job,'podman rm -f {}'.format(m.group(1)))
+            run_fixup(job,'podman kill {} && podman rm -f {}'.format(m.group(1),m.group(1)))
 # < move this nearer the config, or insist on hostname == vmname?
 hostname_not_vmname = {"n":"nico"}
 # no ssh -> wake up vm host vm
