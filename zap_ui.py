@@ -82,7 +82,9 @@ def dotdotdotat(s,n):
     wrapped_text = textwrap.wrap(s,n)
     if len(wrapped_text) > 1:
         wrapped_text[0] += '...'
-    return wrapped_text[0]
+    if len(wrapped_text):
+        return wrapped_text[0]
+    return ""
     
 
 
