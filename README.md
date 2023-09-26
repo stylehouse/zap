@@ -80,6 +80,9 @@ For more caveats, see `zap.py`
 ## rewrite in golang
 lots of nice Console-UI things are over there
 
+## job may exit silently
+if looking at job output. in the job list they do say eg exit(-2).
+
 ## clear exit code on restart
 The fixups can't be gauged for failure, eg `podman rm -f cos1` often errs "container has already been removed", meaning good.
 

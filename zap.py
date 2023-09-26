@@ -82,6 +82,9 @@ def dd(data,depth=7):
 #  and backslashes within the string are not treated as escape characters.
 cmd_source = r'''
     # letz_dev
+       lsyncd py/stylehouseY.lsyncdconf
+        echo yep
+        %restart
     #    lsyncd py/letz.lsyncdconf
     #     echo yep
     #     %restart
@@ -93,12 +96,18 @@ cmd_source = r'''
     #     sshfs s:/media/s/Elvis/Photo v
          # s is 192.168.122.1, virbr0 on sa
          # v is the mount at gox:~s/v, goes into:
+       # sa is the host of podman. /etc/hosts sa to localhost if none.
        ssh sa
         cd ~/src/letz
         podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name py1 py bash -c 'python py/serve.py'
        ssh sa
         cd ~/src/letz
-        podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
+        # podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
+        # disabled.
+        #  finding this better to run directly when compiler changes happen
+        #   need to restart vite after any error.
+        #   which you do by pressing 'r' when you have a real terminal
+        #    faster restart than podman assassinations
 
        /usr/share/codium/codium --ozone-platform=wayland ~/src/letz/
         # taken to this to dev modern javascript
@@ -130,11 +139,11 @@ cmd_source = r'''
      # < avoid sleep: when is the previous job ready?
      # < this seems to end up using 20G of disk on gox
      #   perhaps we should make cos FROM bun, and do imagemagick in the py container.
-       ssh gox
+       ssh sa
         # lsyncd expects src/ to exist
         mkdir -p src/letz
        lsyncd py/letz.lsyncdconf
-       ssh gox
+       ssh sa
         sleep 1
         cd src/letz
         podman build -t cos .
