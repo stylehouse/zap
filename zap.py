@@ -82,9 +82,10 @@ def dd(data,depth=7):
 #  and backslashes within the string are not treated as escape characters.
 cmd_source = r'''
     # letz_dev
-       lsyncd py/stylehouseY.lsyncdconf
-        echo yep
-        %restart
+    # see letz.git 518fd82d504
+    #    lsyncd py/stylehouseY.lsyncdconf
+    #     echo yep
+    #     %restart
     #    lsyncd py/letz.lsyncdconf
     #     echo yep
     #     %restart
