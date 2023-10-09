@@ -103,9 +103,8 @@ cmd_source = r'''
         podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name py1 py bash -c 'python py/serve.py'
        ssh sa
         cd ~/src/letz
-        # podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
-        # disabled.
-        #  finding this better to run directly when compiler changes happen
+        podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
+        # this may be better to run directly when compiler changes happen
         #   need to restart vite after any error.
         #   which you do by pressing 'r' when you have a real terminal
         #    faster restart than podman assassinations
