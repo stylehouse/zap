@@ -110,6 +110,7 @@ cmd_source = r'''
         #    faster restart than podman assassinations
 
        /usr/share/codium/codium --ozone-platform=wayland ~/src/letz/
+        %restart
         # taken to this to dev modern javascript
        echo chromium \
         http://192.168.122.92:5000/dir/ \
@@ -168,8 +169,11 @@ cmd_source = r'''
          # let peer in
 
     # test
-       cd ~/stylehouse
-        ./serve.pl
+       #journalctl -xef
+       # echo yep
+         # < no colour, untested
+       #cd ~/stylehouse
+       # ./serve.pl
        ssh gox
          # < fixup /no route/
          #       virsh start gox

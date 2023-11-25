@@ -11,24 +11,42 @@ from zap_less import truncated_job_output
 
 def give_job_fixup(job,command):
     if 'podman run' in command:
-        job["listen_out"].append(fixup_for_podmanrun_job)
+        job["listen_out"].append(fixup_for_podmanrun)
     if 'py/ipfs.py' in command:
-        job["listen_out"].append(fixup_for_ipfs_job)
+        job["listen_out"].append(fixup_for_ipfs)
     if 'ssh ' in command:
-        job["listen_out"].append(fixup_for_ssh_job)
+        job["listen_out"].append(fixup_for_ssh)
+    if 'journalctl ' in command:
+        job["listen_out"].append(fixup_for_journalctl)
     
     # use the %restart job advice instead, less chatter
     #if 'lsyncd' in command:
     #    job["listen_out"].append(fixup_for_lsyncd_job)
 
+# < it seems to break with a different message each time. give up.
+# restarting sound
+#  my soundcard (2496 ice1712) or pulseaudio have been going wobbly
+#  could need new caps? lots of circuit
+# OutputALSA: Failed to find mixer element
+# sa pulseaudio[144587]: Failed to create sink input: sink is suspended.
+def fixup_for_journalctl(job,out):
+    line = out['s']
+    m = re.search(r'OutputALSA: Failed to find mixer element', line)
+    if not m:
+        m = re.search(r'pulseaudio.*Failed to create sink input: sink is suspended', line)
+    if not m:
+        m = re.search(r'pipewire-pulse.+spa\.loop: 0x.+queue full.+need', line)
+    if m:
+        run_fixup(job,'systemctl --user restart pulseaudio.service')
+
 # these two are left running re-parented when we quit zap
 #  so these jobs cull their previous zombie selves
-def fixup_for_ipfs_job(job,out):
+def fixup_for_ipfs(job,out):
     line = out['s']
     if out["std"] == "err":
         if 'Port 8000 is in use by another program. Either identify and stop that program' in line:
             run_fixup(job,r"kill $(ps fuax | grep '/python3 py/ipfs.py' | grep -v grep | awk 'NR==1{print $2}')")
-def fixup_for_podmanrun_job(job,out):
+def fixup_for_podmanrun(job,out):
     line = out['s']
     if out["std"] == "err":
         m = re.search(r'the container name "(\S+)" is already in use', line)
@@ -36,10 +54,11 @@ def fixup_for_podmanrun_job(job,out):
             m = re.search(r'Error: name "(\S+)" is in use: container already exists', line)
         if m:
             run_fixup(job,'podman kill {}; podman rm -f {}'.format(m.group(1),m.group(1)))
+
 # < move this nearer the config, or insist on hostname == vmname?
 hostname_not_vmname = {"n":"nico"}
 # no ssh -> wake up vm host vm
-def fixup_for_ssh_job(job,out):
+def fixup_for_ssh(job,out):
     line = out['s']
     if out["std"] == "err":
         if m := re.search(r'^ssh: connect to host (\S+) port (\d+): (No route to host|Connection refused)', line):
