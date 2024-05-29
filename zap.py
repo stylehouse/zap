@@ -98,18 +98,17 @@ cmd_source = r'''
          # s is 192.168.122.1, virbr0 on sa
          # v is the mount at gox:~s/v, goes into:
        # sa is the host of podman. /etc/hosts sa to localhost if none.
-       ssh sa
-        cd ~/src/letz
+       cd ~/src/letz
         podman run -v ~/v:/v:ro -v .:/app:exec -p 5000:5000 --rm -it --name py1 py bash -c 'python py/serve.py'
-       ssh sa
-        cd ~/src/letz
+       cd ~/src/letz
         podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
         # this may be better to run directly when compiler changes happen
         #   need to restart vite after any error.
         #   which you do by pressing 'r' when you have a real terminal
         #    faster restart than podman assassinations
 
-       /usr/share/codium/codium --ozone-platform=wayland ~/src/letz/
+       /usr/share/codium/codium ~/src/letz/
+        # --ozone-platform=wayland
         #%restart
         # taken to this to dev modern javascript
        echo chromium \
