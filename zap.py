@@ -103,7 +103,7 @@ cmd_source = r'''
        cd ~/src/letz
         podman run -v .:/app:exec -p 3000:3000 --rm -it --name cos1 cos bash -ci 'npm run dev -- --port 3000 --host 0.0.0.0'
         # this may be better to run directly when compiler changes happen
-        #   need to restart vite after any error.
+        #   need to restart vite after any error (in the compiler)
         #   which you do by pressing 'r' when you have a real terminal
         #    faster restart than podman assassinations
 
@@ -126,8 +126,7 @@ cmd_source = r'''
         http://editong.localhost:1812/
         # edits javascript as perl
     # ipfs
-       ssh sa
-        cd ~/src/letz
+       cd ~/src/letz
         podman run -v .:/app:exec -p 8000:8000 --rm -it --name py2 py bash -c 'python py/ipfs.py'
         # < why can't this be %restart? it detects exit immediately, as flask daemonises..?
         # < seems to output less via zap
